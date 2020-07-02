@@ -1,26 +1,33 @@
 <template>
   <div class="hello">
     <h1>todo</h1>
+    <h3>h3 todo</h3>
+    <p>$data : {{ $data }}</p>
+    <p>todos : {{ todos }}</p>
 
-    <input
-      type="text"
-      placeholder="todoを入力してくだい"
-      v-model="title"
-    />
-    <p>{{ todos }} </p>
-    <button
-      @click="addTodo"
-    >追加</button>
-
+    <input @keyup.enter="addTodo" type="text" placeholder="todoを入力してくだい" v-model="title" />
+    <button @click="addTodo">追加</button>
 
     <div>
-      <ul v-for="(todo, index) in todos" :key="index">
-        <li>
-          <input type="checkbox" >
-          <label>{{todo}}</label>
-          <button>削除</button>
-        </li>
-      </ul>
+      <tabel>
+        <tr v-for="(todo, index) in todos" :key="index">
+          <td v-if="todo.edit" class="w100">
+            <input @keyup.enter="todo.edit = false" type="text" v-model="todo.title" />
+          </td>
+
+          <template v-else>
+            <td class="w10">
+              <input type="checkbox" v-model="todo.done" />
+            </td>
+            <td class="w80">
+              <label @dblclick="todo.edit = true" v-bind:class="{done: todo.done}">{{ todo.title }}</label>
+            </td>
+            <td class="w10">
+              <button @click="delTodo(index)">削除</button>
+            </td>
+          </template>
+        </tr>
+      </tabel>
     </div>
   </div>
 </template>
@@ -34,13 +41,22 @@ export default {
   data() {
     return {
       todos: [],
-      title: "" 
-    }
+      title: ""
+    };
   },
 
-  methods:{
-    addTodo() { 
-      this.todos.push( this.title )
+  methods: {
+    addTodo() {
+      this.todos.push({
+        title: this.title,
+        done: false,
+        edit: false
+      });
+      this.title = "";
+    },
+
+    delTodo(index) {
+      this.todos.splice(index, 1);
     }
   }
 };
@@ -50,16 +66,35 @@ export default {
 <style scoped>
 h3 {
   margin: 40px 0 0;
+  text-decoration: line-through;
 }
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
+}
+
+.done {
+  text-decoration: line-through;
+}
+
+.w10 {
+  width: 10%;
+}
+
+.w80 {
+  width: 80%;
+}
+
+.w100 {
+  width: 100%;
 }
 </style>
