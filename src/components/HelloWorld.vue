@@ -11,7 +11,7 @@
     <div>
       <tabel>
         <tr v-for="(todo, index) in todos" :key="index">
-          <td v-if="todo.edit" class="w100">
+          <td v-if="todo.edit" colspan="3">
             <input @keyup.enter="todo.edit = false" type="text" v-model="todo.title" />
           </td>
 
@@ -47,12 +47,14 @@ export default {
 
   methods: {
     addTodo() {
-      this.todos.push({
-        title: this.title,
-        done: false,
-        edit: false
-      });
-      this.title = "";
+      if (this.title) {
+        this.todos.push({
+          title: this.title,
+          done: false,
+          edit: false
+        });
+        this.title = "";
+      }
     },
 
     delTodo(index) {
