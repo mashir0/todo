@@ -20,17 +20,13 @@
         <v-list>
           <v-list-item v-for="(todo, index) in todos" :key="index">
             <td v-if="todo.edit" colspan="3">
-              <v-text-field
-                dense
-                @keyup.enter="todo.edit = false"
-                type="text"
-                v-model="todo.title"
-              />
+              <v-text-field dense @keyup.enter="editTodo(todo)" type="text" v-model="todo.title" />
             </td>
 
             <template v-else>
               <td class="w10">
-                <input type="checkbox" v-model="todo.done" />
+                <!-- <input type="checkbox" v-model="todo.done" /> -->
+                <input type="checkbox" @change="editTodo(todo)" v-model="todo.done" />
               </td>
               <td class="w80">
                 <label
@@ -39,7 +35,7 @@
                 >{{ todo.title }}</label>
               </td>
               <td class="w10">
-                <v-btn icon @click="delTodo(index)">
+                <v-btn icon @click="delTodo(todo)">
                   <v-icon>mdi-close</v-icon>
                 </v-btn>
               </td>
@@ -52,6 +48,8 @@
 </template>
 
 <script>
+import { db } from "@/plugins/firebase";
+
 export default {
   name: "HelloWorld",
   props: {
@@ -64,20 +62,44 @@ export default {
     };
   },
 
+  firestore() {
+    return {
+      todos: db.collection("todos").orderBy("createdAt", "desc")
+    };
+  },
+
   methods: {
     addTodo() {
       if (this.title) {
-        this.todos.push({
+        // this.todos.push({
+        //   title: this.title,
+        //   done: false,
+        //   edit: false
+        // });
+        // this.title = "";
+        const now = new Date();
+        db.collection("todos").add({
           title: this.title,
           done: false,
-          edit: false
+          edit: false,
+          createdAt: now
         });
         this.title = "";
       }
     },
 
-    delTodo(index) {
-      this.todos.splice(index, 1);
+    delTodo(todo) {
+      // this.todos.splice(index, 1);
+      db.collection("todos")
+        .doc(todo.id)
+        .delete();
+    },
+
+    editTodo(todo) {
+      todo.edit = false;
+      db.collection("todos")
+        .doc(todo.id)
+        .set(todo);
     }
   }
 };
